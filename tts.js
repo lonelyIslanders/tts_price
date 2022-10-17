@@ -34,7 +34,7 @@ const priceBuffer = request(`GET`, `http://price.spbad.asia`);
 const price = JSON.parse(priceBuffer.body);
 const BTC = price[0].price;
 const ETH = price[1].price;
-const nowTime = new Date().getSeconds();
+const nowTime = Date.now();
 const lastData = { TIME: nowTime, BTC: parseFloat(BTC), ETH: parseFloat(ETH) };
 fs.writeFileSync('lastPrice.json', JSON.stringify(lastData));
 
