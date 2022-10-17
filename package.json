@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "play-sound": "^1.1.5",
-    "tencentcloud-sdk-nodejs-tts": "^4.0.460"
-  }
-}
