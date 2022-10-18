@@ -34,59 +34,59 @@ const clientConfig = {
 };
 
 function comparePrice(nowPrice) {
-  fs.readFile('lastPrice.json', (err, data) => {
-    if (err) {
-      console.log(err);
-      return;
+  let backData;
+  const bufferData = fs.readFileSync('lastPrice.json');
+
+  const lastData = JSON.parse(bufferData);
+  const lastBTC = lastData.BTC;
+  const lastETH = lastData.ETH;
+  const lastTimeStamp = lastData.TIME;
+
+  //计算BTC
+  if (nowPrice.BTC - lastBTC > 0) {//代表BTC价格较上次涨了嘿
+    const diff = nowPrice.BTC - lastBTC;
+    const percent = Math.round(diff / lastBTC * 10000) / 100.00;
+    if (percent > 0.2) {//秒涨0.2%报警
+      return backData = { alert: 1, symbol: 'BTC', trend: '上涨', diffPrice: diff.toFixed(2), percent: "涨幅" + percent + "%" };//播报，附加上涨价格和幅度
     }
-    const lastData = JSON.parse(data);
-    const lastBTC = lastData.BTH;
-    const lastETH = lastData.ETH;
-    const lastTimeStamp = lastData.TIME;
-    if (nowPrice.BTC - lastBTC > 0) {//代表BTC价格较上次涨了嘿
-      const diff = nowPrice.BTC - lastBTC;
-      const percent = Math.round(diff / lastBTC * 10000) / 100.00;
-      if (percent > 0.2) {//秒涨0.2%报警
-        return { alert: 1, risePrice: diff, risePercent: percent };//播报，附加上涨价格和幅度
-      }
-      else {
-        return { alert: 0 };//不报警
-      }
+    else {
+      backData = { alert: 0 };//不报警
     }
-    if (nowPrice.BTC - lastBTC < 0) {//代表BTC价格较上次跌了日
-      const diff = lastBTC - nowPrice.BTC;
-      const percent = Math.round(diff / lastBTC * 10000) / 100.00;
-      if (percent > 0.2) {//秒跌0.2报警
-        return { alert: 1, fallPrise: diff, fallPercent: percent }//播报，附加下跌价格和幅度
-      }
-      else {
-        return { alert: 0 };//不报警
-      }
+  }
+  if (nowPrice.BTC - lastBTC < 0) {//代表BTC价格较上次跌了日
+    const diff = lastBTC - nowPrice.BTC;
+    const percent = Math.round(diff / lastBTC * 10000) / 100.00;
+    if (percent > 0.2) {//秒跌0.2报警
+      return backData = { alert: 1, symbol: 'BTC', trend: '下跌', diffPrice: diff.toFixed(2), percent: "跌幅" + percent + "%" }//播报，附加下跌价格和幅度
     }
+    else {
+      backData = { alert: 0 };//不报警
+    }
+  }
 
 
-    //ETH计算
-    if (nowPrice.ETH - lastETH > 0) {
-      const diff = nowPrice.ETH - lastETH;
-      const percent = Math.round(diff / lastETH * 10000) / 100.00;
-      if (percent > 0.2) {
-        return { alert: 1, risePrice: diff, risePercent: percent };
-      }
-      else {
-        return { alert: 0 };
-      }
+  //ETH计算
+  if (nowPrice.ETH - lastETH > 0) {
+    const diff = nowPrice.ETH - lastETH;
+    const percent = Math.round(diff / lastETH * 10000) / 100.00;
+    if (percent > 0.2) {
+      return backData = { alert: 1, symbol: 'ETH', trend: '上涨', diffPrice: diff.toFixed(2), percent: "涨幅" + percent + "%" };
     }
-    if (nowPrice.ETH - lastETH < 0) {
-      const diff = lastETH - nowPrice.ETH;
-      const percent = Math.round(diff / lastETH * 10000) / 100.00;
-      if (percent > 0.2) {
-        return { alert: 1, fallPrise: diff, fallPercent: percent }
-      }
-      else {
-        return { alert: 0 };//不报警
-      }
+    else {
+      backData = { alert: 0 };
     }
-  })
+  }
+  if (nowPrice.ETH - lastETH < 0) {
+    const diff = lastETH - nowPrice.ETH;
+    const percent = Math.round(diff / lastETH * 10000) / 100.00;
+    if (percent > 0.2) {
+      return backData = { alert: 1, symbol: 'ETH', trend: '下跌', diffPrice: diff.toFixed(2), percent: "跌幅" + percent + "%" }
+    }
+    else {
+      backData = { alert: 0 };//不报警
+    }
+  }
+  return backData;
 }
 
 // 实例化要请求产品的client对象,clientProfile是可选的
@@ -109,9 +109,20 @@ fs.writeFile('lastPrice.json', JSON.stringify(lastData), (err) => {
   console.log("写入OK")
 });
 
+let textContent;
+const isAlert = comparePrice(lastData);
+if (isAlert.alert == 0) {
+  console.log("不紧急，勿播报紧急情况");
+  textContent = `比特币价格为${parseFloat(BTC)}，以太坊价格为${parseFloat(ETH)}`;
+} else {
+  console.log("紧急情况，迅速播报");
+  textContent = `${isAlert.symbol}${isAlert.trend}${isAlert.diffPrice}刀,${isAlert.percent}`
+}
+
 
 const params = {
-  "Text": `比特币价格为${parseFloat(BTC)}，以太坊价格为${parseFloat(ETH)}`,
+  // "Text": `比特币价格为${parseFloat(BTC)}，以太坊价格为${parseFloat(ETH)}`,
+  "Text": textContent,
   "SessionId": reqTime,
   "VoiceType": 1007
 };
