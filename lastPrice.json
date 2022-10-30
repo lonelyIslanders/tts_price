@@ -1,1 +1,27 @@
-{"TIME":1666114238097,"BTC":19401.23,"ETH":1307.71}
+{
+  "TIME": 1666881773954,
+  "BTC": 20584.26,
+  "ETH": 1548.95,
+  "AGO": {
+    "five": {
+      "time": null,
+      "btc": null,
+      "eth": null
+    },
+    "fifteen": {
+      "time": null,
+      "btc": null,
+      "eth": null
+    },
+    "hour": {
+      "time": null,
+      "btc": null,
+      "eth": null
+    },
+    "day": {
+      "time": null,
+      "btc": null,
+      "eth": null
+    }
+  }
+}

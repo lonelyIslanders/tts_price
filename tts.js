@@ -3,16 +3,11 @@ const tencentcloud = require('tencentcloud-sdk-nodejs-tts');
 const fs = require('fs');
 const request = require('sync-request');
 const sound = require('play-sound')(opts = {});
-// const exec = require('child_process').exec;
 
 const TtsClient = tencentcloud.tts.v20190823.Client;
 
 const currentHour = new Date().getHours();
 
-if (currentHour >= 2 && currentHour <= 13) {
-  console.log('qiao你妈，不允许播放')
-  return;
-}
 
 
 //AKIDQgorfEbmhLh5KNI2au6B9xZ1IROI5hM5
@@ -22,8 +17,8 @@ if (currentHour >= 2 && currentHour <= 13) {
 // 密钥可前往https://console.cloud.tencent.com/cam/capi网站进行获取
 const clientConfig = {
   credential: {
-    secretId: "AKID73j7E6h14ycz5tQggPr2wZv0nJXVCcle",
-    secretKey: "f3B2bttc5IE0WliOs64mDPKxKQElBKBl",
+    secretId: "AKIDQgorfEbmhLh5KNI2au6B9xZ1IROI5hM5",
+    secretKey: "dD6uVt3e8f6RipiP2jMpDRTM3f4HJbij",
   },
   region: "ap-nanjing",
   profile: {
@@ -36,56 +31,84 @@ const clientConfig = {
 function comparePrice(nowPrice) {
   let backData;
   const bufferData = fs.readFileSync('lastPrice.json');
+  const bufferToParse = JSON.parse(bufferData);
+  const nowTime = Date.now();
+  // if (new Date().getHours == 0) {
+  // }
+  if (bufferToParse.AGO == undefined) {//lastPrice没有AGO就全部写入先
+    nowPrice.AGO.five = { "time": nowTime, "btc": nowPrice.BTC, "eth": nowPrice.ETH };
+    nowPrice.AGO.fifteen = { "time": nowTime, "btc": nowPrice.BTC, "eth": nowPrice.ETH };
+    nowPrice.AGO.hour = { "time": nowTime, "btc": nowPrice.BTC, "eth": nowPrice.ETH };
+    fs.writeFileSync('lastPrice.json', JSON.stringify(nowPrice));
+    return;
+  }
+
+
+
+
 
   const lastData = JSON.parse(bufferData);
   const lastBTC = lastData.BTC;
   const lastETH = lastData.ETH;
-  const lastTimeStamp = lastData.TIME;
+
+  console.log("上次比特币价格" + lastBTC);
+  console.log("最新比特币价格" + nowPrice.BTC);
 
   //计算BTC
-  if (nowPrice.BTC - lastBTC > 0) {//代表BTC价格较上次涨了嘿
-    const diff = nowPrice.BTC - lastBTC;
+  if (nowPrice.BTC - lastBTC >= 0) {//代表BTC价格较上次涨了嘿
+    console.log("btc涨了");
+    const diff = (nowPrice.BTC - lastBTC);
     const percent = Math.round(diff / lastBTC * 10000) / 100.00;
-    if (percent > 0.2) {//秒涨0.2%报警
-      return backData = { alert: 1, symbol: 'BTC', trend: '上涨', diffPrice: diff.toFixed(2), percent: "涨幅" + percent + "%" };//播报，附加上涨价格和幅度
+    if (percent > 0.1) {//秒涨0.1%报警
+      fs.writeFileSync('lastPrice.json', JSON.stringify(nowPrice));
+      return backData = { alert: 1, symbol: '比特币', trend: '上涨', diffPrice: diff.toFixed(2), percent: "涨幅" + percent + "%", now: nowPrice.BTC };//播报，附加上涨价格和幅度
     }
     else {
+      fs.writeFileSync('lastPrice.json', JSON.stringify(nowPrice));
       backData = { alert: 0 };//不报警
     }
   }
   if (nowPrice.BTC - lastBTC < 0) {//代表BTC价格较上次跌了日
+    console.log("btc跌了")
     const diff = lastBTC - nowPrice.BTC;
     const percent = Math.round(diff / lastBTC * 10000) / 100.00;
-    if (percent > 0.2) {//秒跌0.2报警
-      return backData = { alert: 1, symbol: 'BTC', trend: '下跌', diffPrice: diff.toFixed(2), percent: "跌幅" + percent + "%" }//播报，附加下跌价格和幅度
+    if (percent > 0.1) {//秒跌0.1报警
+      fs.writeFileSync('lastPrice.json', JSON.stringify(nowPrice));
+      return backData = { alert: 1, symbol: '比特币', trend: '下跌', diffPrice: diff.toFixed(2), percent: "跌幅" + percent + "%", now: nowPrice.BTC }//播报，附加下跌价格和幅度
     }
     else {
+      fs.writeFileSync('lastPrice.json', JSON.stringify(nowPrice));
       backData = { alert: 0 };//不报警
     }
   }
 
 
   //ETH计算
-  if (nowPrice.ETH - lastETH > 0) {
+  if (nowPrice.ETH - lastETH >= 0) {
     const diff = nowPrice.ETH - lastETH;
     const percent = Math.round(diff / lastETH * 10000) / 100.00;
-    if (percent > 0.2) {
-      return backData = { alert: 1, symbol: 'ETH', trend: '上涨', diffPrice: diff.toFixed(2), percent: "涨幅" + percent + "%" };
+    if (percent > 0.1) {
+      fs.writeFileSync('lastPrice.json', JSON.stringify(nowPrice));
+      return backData = { alert: 1, symbol: '以太坊', trend: '上涨', diffPrice: diff.toFixed(2), percent: "涨幅" + percent + "%", now: nowPrice.ETH };
     }
     else {
+      fs.writeFileSync('lastPrice.json', JSON.stringify(nowPrice));
       backData = { alert: 0 };
     }
   }
   if (nowPrice.ETH - lastETH < 0) {
     const diff = lastETH - nowPrice.ETH;
     const percent = Math.round(diff / lastETH * 10000) / 100.00;
-    if (percent > 0.2) {
-      return backData = { alert: 1, symbol: 'ETH', trend: '下跌', diffPrice: diff.toFixed(2), percent: "跌幅" + percent + "%" }
+    if (percent > 0.1) {
+      fs.writeFileSync('lastPrice.json', JSON.stringify(nowPrice));
+      return backData = { alert: 1, symbol: '以太坊', trend: '下跌', diffPrice: diff.toFixed(2), percent: "跌幅" + percent + "%", now: nowPrice.ETH }
     }
     else {
+      fs.writeFileSync('lastPrice.json', JSON.stringify(nowPrice));
       backData = { alert: 0 };//不报警
     }
   }
+
   return backData;
 }
 
@@ -93,31 +116,71 @@ function comparePrice(nowPrice) {
 const client = new TtsClient(clientConfig);
 const reqTime = Date.now().toString();
 
-const priceBuffer = request(`GET`, `http://price.spbad.asia`);
+const priceBuffer = request(`GET`, `http://spbad.asia:3000/price`);
 const price = JSON.parse(priceBuffer.body);
 const BTC = price[0].price;
 const ETH = price[1].price;
 const nowTime = Date.now();
-const lastData = { TIME: nowTime, BTC: parseFloat(BTC), ETH: parseFloat(ETH) };
 
-// fs.writeFileSync('lastPrice.json', JSON.stringify(lastData));
-fs.writeFile('lastPrice.json', JSON.stringify(lastData), (err) => {
-  if (err) {
-    console.log(err);
-    return;
+
+
+const latestPriceData = {
+  "TIME": nowTime, "BTC": parseFloat(BTC), "ETH": parseFloat(ETH),//最新价
+  "AGO": {
+    "five": {
+      "time": null,
+      "btc": null,
+      "eth": null
+    },
+    "fifteen": {
+      "time": null,
+      "btc": null,
+      "eth": null
+    },
+    "hour": {
+      "time": null,
+      "btc": null,
+      "eth": null
+    },
+    "day": {
+      "time": null,
+      "btc": null,
+      "eth": null
+    }
   }
-  console.log("写入OK")
-});
+};
 
-let textContent;
-const isAlert = comparePrice(lastData);
+
+
+
+// const lastPriceData = fs.readFileSync('lastPrice.json');//上一次价格
+// const lastPriceJson = JSON.parse(lastPriceData);
+// fs.writeFileSync('lastPrice.json', JSON.stringify(latestPriceData));//写入最新价保存
+// fs.writeFile('lastPrice.json', JSON.stringify(lastData), (err) => {
+//   if (err) {
+//     console.log(err);
+//     return;
+//   }
+//   console.log("写入OK")
+// });
+
+let textContent = `比特币价格为${parseFloat(BTC)}，以太坊价格为${parseFloat(ETH)}`;//仍然最新价
+const isAlert = comparePrice(latestPriceData);//计算的话传入最新价obj
+console.log(isAlert);
 if (isAlert.alert == 0) {
-  console.log("不紧急，勿播报紧急情况");
+  console.log("不紧急，勿播报");
   textContent = `比特币价格为${parseFloat(BTC)}，以太坊价格为${parseFloat(ETH)}`;
+  return;
 } else {
   console.log("紧急情况，迅速播报");
-  textContent = `${isAlert.symbol}${isAlert.trend}${isAlert.diffPrice}刀,${isAlert.percent}`
+  textContent = `${isAlert.symbol}${isAlert.trend}${isAlert.diffPrice}刀,${isAlert.percent},现报${isAlert.now}`
 }
+
+if (currentHour >= 2 && currentHour <= 12) {
+  console.log('qiao你妈，不允许播放')
+  return;
+}
+
 
 
 const params = {
