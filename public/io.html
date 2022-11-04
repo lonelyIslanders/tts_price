@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+  <script>
+    function on() {
+      const xhr = new XMLHttpRequest();
+      xhr.open('get', 'http://192.168.31.100:3000/io?target=on&cmd=pm2 start /usr/share/nginx/nodejs/tts_price/tts2.js', false);
+      xhr.send();
+      if (xhr.status == 200 && xhr.readyState == 4) {
+        console.log("开启")
+      }
+    }
+
+
+    function off() {
+      const xhr = new XMLHttpRequest();
+      xhr.open('get', 'http://192.168.31.100:3000/io?target=off&cmd=pm2 stop /usr/share/nginx/nodejs/tts_price/tts2.js', false);
+      xhr.send();
+      if (xhr.status == 200 && xhr.readyState == 4) {
+        console.log("关闭")
+      }
+    }
+
+
+
+  </script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .contr {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+
+    #on,
+    #off {
+      width: 160px;
+      height: 160px;
+      border: none;
+      border-radius: 50%;
+      margin: 50px;
+      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+      background-size: 600% 600%;
+      animation: gradientBG 5s ease infinite;
+      transition: all 0.4s;
+    }
+
+
+
+    #on:hover {
+      width: 170px;
+      height: 170px;
+      border: none;
+      border-radius: 50%;
+      transition: scale(1.4);
+    }
+
+
+    #off:hover {
+      width: 170px;
+      height: 170px;
+      border: none;
+      border-radius: 50%;
+      transition: scale(1.4);
+    }
+
+
+    .on {
+      width: 260px;
+      height: 260px;
+    }
+
+    #open,
+    #close {
+      font-size: 30px;
+      font-weight: lighter;
+    }
+
+
+
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+  </style>
+
+
+</head>
+
+
+
+<body>
+  <div class="contr">
+    <div class="on">
+      <button onclick="on()" class="btn" id="on"><span id="open">开启</span></button>
+    </div>
+    <br>
+    <div class="on">
+      <button onclick="off()" class="btn" id="off"><span id="close">关闭</span></button>
+    </div>
+  </div>
+</body>
+
+</html>

@@ -8,10 +8,13 @@ const TtsClient = tencentcloud.tts.v20190823.Client;
 
 const currentHour = new Date().getHours();
 
-// if (currentHour >= 2 && currentHour <= 15) {
-//   console.log('qiao你妈，不允许播放')
-//   return;
+// if(1){
+// return;
 // }
+//if (currentHour >= 2 && currentHour <= 15) {
+//  console.log('qiao你妈，不允许播放')
+//  return;
+//}
 
 
 //AKIDQgorfEbmhLh5KNI2au6B9xZ1IROI5hM5
