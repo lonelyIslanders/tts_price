@@ -24,8 +24,8 @@ const currentHour = new Date().getHours();
 // 密钥可前往https://console.cloud.tencent.com/cam/capi网站进行获取
 const clientConfig = {
   credential: {
-    secretId: "AKIDQgorfEbmhLh5KNI2au6B9xZ1IROI5hM5",
-    secretKey: "dD6uVt3e8f6RipiP2jMpDRTM3f4HJbij",
+    secretId: "666",
+    secretKey: "666",
   },
   region: "ap-nanjing",
   profile: {
